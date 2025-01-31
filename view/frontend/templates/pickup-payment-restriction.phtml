@@ -1,0 +1,81 @@
+<?php
+
+declare(strict_types=1);
+
+/** @var Magento\Framework\Escaper $escaper */
+/** @var Magento\Framework\View\Element\Template $block */
+/** @var Magenable\PickupPaymentRestriction\ViewModel\PickupPaymentRestriction $viewModel */
+$viewModel = $block->getData('pickup_payment_restriction');
+if (!$viewModel->isModuleEnabled()) {
+    return;
+}
+?>
+<script>
+    ;(function(){
+        const storageKey = 'magenable-pickup-payment-restriction-current-shipping-method';
+        const restrictedPaymentMethodsFromConfiguration = JSON.parse(
+            '<?= /* @noEscape */ json_encode($viewModel->getPaymentMethods()) ?>'
+        );
+
+        function check(event) {
+            const storage = hyva.getBrowserStorage();
+            if (event.type === 'checkout:shipping:method-activate') {
+                storage.setItem(storageKey, event.detail.method);
+            }
+            if (!storage.getItem(storageKey)) {
+                return;
+            }
+
+            const restrictedPaymentMethods = getRestrictedPaymentMethods();
+            if (!restrictedPaymentMethods.length) {
+                return;
+            }
+
+            if (storage.getItem(storageKey) !== 'instore_pickup') {
+                restrictedPaymentMethods.forEach(function(restrictedPaymentMethod){
+                    const liElement = restrictedPaymentMethod.closest('li');
+                    liElement.classList.remove('hidden');
+                });
+
+                return;
+            }
+
+            let restrictedPaymentMethodIsActive = false;
+            restrictedPaymentMethods.forEach(function(restrictedPaymentMethod){
+                const liElement = restrictedPaymentMethod.closest('li');
+                liElement.classList.add('hidden');
+                liElement.classList.contains('active') && (restrictedPaymentMethodIsActive = true);
+            });
+            restrictedPaymentMethodIsActive && selectAnotherPaymentMethod();
+        }
+        function getRestrictedPaymentMethods() {
+            const result = [];
+            document.querySelectorAll('[name="payment-method-option"]').forEach(function(paymentMethod){
+                if (restrictedPaymentMethodsFromConfiguration.includes(paymentMethod.value)) {
+                    result.push(paymentMethod);
+                }
+            });
+
+            return result;
+        }
+        function selectAnotherPaymentMethod() {
+            const paymentMethods = Array.from(document.getElementById('payment-method-list')
+                ?.querySelectorAll('[name="payment-method-option"]') ?? []);
+
+            paymentMethods.every(function(paymentMethod){
+                const liElement = paymentMethod.closest('li');
+                if (liElement.classList.contains('hidden')) {
+                    return true;
+                }
+
+                paymentMethod.click();
+                return false;
+            });
+        }
+
+        window.addEventListener('checkout:shipping:method-activate', check);
+        window.addEventListener('checkout:payment:method-activate', check);
+        window.addEventListener('checkout:navigation:success', check);
+        window.addEventListener('magewire:loader:done', check);
+    }());
+</script>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Magenable_PickupPaymentRestriction">
+        <sequence>
+            <module name="Magento_InventoryInStorePickupShippingApi"/>
+            <module name="Magento_Payment"/>
+            <module name="Hyva_Checkout"/>
+        </sequence>
+    </module>
+</config>

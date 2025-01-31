@@ -1,0 +1,33 @@
+{
+    "name": "magenable/module-pickup-payment-restriction",
+    "description": "A Magento 2 module which restricts Payment Methods for In Store Pickup Delivery on Hyva checkout",
+    "require": {
+        "php": "^8.1",
+        "magento/framework": ">=102.0",
+        "magenable/module-base": "*",
+        "hyva-themes/magento2-hyva-checkout": "*"
+    },
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Magenable",
+            "homepage": "https://magenable.com.au"
+        }
+    ],
+    "keywords": [
+        "in store pickup delivery",
+        "payment restriction",
+        "magento 2 module",
+        "hyva"
+    ],
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Magenable\\PickupPaymentRestriction\\": ""
+        }
+    }
+}
